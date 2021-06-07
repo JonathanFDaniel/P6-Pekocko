@@ -17,7 +17,29 @@ exports.signup = (req, res, next) => {
     .catch(error => res.status(500).json({ error }));
 };
 
+const maskEmail = (email) => {
+  const emailParts = email.spit('@');
+  const emailPartsRight = emailParts[1].spit('.');
+  const emailPart1 = obfuscate(emailParts[0]);
+  const emailPart2 = obfuscate(emailPartsRight[0]);
+  const emailPart3 = emailPartsRight[1];
+  return `${emailPart1}@${emailPart2}.${emailPart3}`
+};
+
+const obfuscate = (str) => {
+  let output = ""
+  for(let i = 0; i < str.length; i++) {
+    if(i < str.length/2) {
+      output += '*'
+    } else {
+      output += str[i]
+    }
+  }
+  return output;
+};
+
 exports.login = (req, res, next) => {
+  console.log('#########', req.body.email, maskEmail(req.body.email));
     User.findOne({ email: req.body.email })
       .then(user => {
         if (!user) {
@@ -30,9 +52,10 @@ exports.login = (req, res, next) => {
             }
             res.status(200).json({
               userId: user._id,
+              email: maskEmail(req.body.email),
               token:  jwt.sign(
                 { userId: user._id },
-                'RAMDOM_TOKEN_SECRET',
+                process.env.JWT_SECRET,
                 { expiresIn: '24h' }
               )
             });
