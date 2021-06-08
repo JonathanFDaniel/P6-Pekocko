@@ -18,8 +18,8 @@ exports.signup = (req, res, next) => {
 };
 
 const maskEmail = (email) => {
-  const emailParts = email.spit('@');
-  const emailPartsRight = emailParts[1].spit('.');
+  const emailParts = email.split('@');
+  const emailPartsRight = emailParts[1].split('.');
   const emailPart1 = obfuscate(emailParts[0]);
   const emailPart2 = obfuscate(emailPartsRight[0]);
   const emailPart3 = emailPartsRight[1];
@@ -39,7 +39,6 @@ const obfuscate = (str) => {
 };
 
 exports.login = (req, res, next) => {
-  console.log('#########', req.body.email, maskEmail(req.body.email));
     User.findOne({ email: req.body.email })
       .then(user => {
         if (!user) {
